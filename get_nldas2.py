@@ -59,7 +59,6 @@ while startdate < enddate:
         
     # Download file from NLDAS-2
     url = NLDASDataLoc+'/'+yr+'/'+doy+'/NLDAS_FORA0125_H.A'+yr+mo+dy+'.'+hr+'00.020.nc'
-    of = './tmp/'+hr+'.nc'
     os.system('wget --user ' + NLDASUsername + ' --password ' + NLDASPassword + ' ' + url) 
 
     # Subset the download to our model domain and save this smaller file
