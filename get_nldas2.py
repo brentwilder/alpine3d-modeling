@@ -22,7 +22,7 @@ lry = 43
 
 # Set start and end date
 startdate = datetime(1985, 10, 1, 0)
-enddate = datetime(2020, 9, 30, 0)
+enddate = datetime(2020, 10, 1, 0)
 
 # Start while loop the runs while dates are within the range selected
 while startdate < enddate:
@@ -59,7 +59,7 @@ while startdate < enddate:
         
     # Download file from NLDAS-2
     url = NLDASDataLoc+'/'+yr+'/'+doy+'/NLDAS_FORA0125_H.A'+yr+mo+dy+'.'+hr+'00.020.nc'
-    os.system('wget --user ' + NLDASUsername + ' --password ' + NLDASPassword + ' ' + url) 
+    os.system('wget --tries=200 --user ' + NLDASUsername + ' --password ' + NLDASPassword + ' ' + url) 
 
     # Subset the download to our model domain and save this smaller file
     temp_array = xr.open_dataset('./NLDAS_FORA0125_H.A'+yr+mo+dy+'.'+hr+'00.020.nc')
