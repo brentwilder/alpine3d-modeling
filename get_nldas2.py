@@ -1,4 +1,4 @@
-# Script to download NLDAS-2 for Alpine3D
+# Script to download NLDAS-2
 # Brent Wilder
 # 04/26/2022
 
@@ -21,7 +21,7 @@ lrx = -114
 lry = 43
 
 # Set start and end date
-startdate = datetime(1986, 5, 3, 21)
+startdate = datetime(1980, 10, 1, 0)
 enddate = datetime(2020, 10, 1, 0)
 
 # Start while loop the runs while dates are within the range selected
