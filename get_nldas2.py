@@ -21,7 +21,7 @@ lrx = -114
 lry = 43
 
 # Set start and end date
-startdate = datetime(1985, 10, 1, 0)
+startdate = datetime(1986, 5, 3, 21)
 enddate = datetime(2020, 10, 1, 0)
 
 # Start while loop the runs while dates are within the range selected
@@ -56,20 +56,26 @@ while startdate < enddate:
         hr = '0'+ str(startdate.hour)
     else:
         hr = str(startdate.hour)
-        
+
+
     # Download file from NLDAS-2
     url = NLDASDataLoc+'/'+yr+'/'+doy+'/NLDAS_FORA0125_H.A'+yr+mo+dy+'.'+hr+'00.020.nc'
-    os.system('wget --tries=200 --user ' + NLDASUsername + ' --password ' + NLDASPassword + ' ' + url) 
+    # Write in a second while loop to try several times in case 'failed: Network is unreachable.'
+    attempts = 0
+    while attempts < 10:
+        try:
+            os.system('wget --user ' + NLDASUsername + ' --password ' + NLDASPassword + ' ' + url)
+            # Subset the download to our model domain and save this smaller file
+            temp_array = xr.open_dataset('./NLDAS_FORA0125_H.A'+yr+mo+dy+'.'+hr+'00.020.nc')
+            mask_lon = (temp_array.lon >= ulx) & (temp_array.lon <= lrx)
+            mask_lat = (temp_array.lat >= lry) & (temp_array.lat <= uly)
+            clipped = temp_array.where(mask_lon & mask_lat, drop=True)
+            clipped.to_netcdf(path='./nldas/NLDAS_FORA0125_H.A'+yr+mo+dy+'.'+hr+'00.020.nc',mode='w')
+            # Delete the big file
+            os.remove('./NLDAS_FORA0125_H.A'+yr+mo+dy+'.'+hr+'00.020.nc')
+            break
+        except:
+            attempts +=1
 
-    # Subset the download to our model domain and save this smaller file
-    temp_array = xr.open_dataset('./NLDAS_FORA0125_H.A'+yr+mo+dy+'.'+hr+'00.020.nc')
-    mask_lon = (temp_array.lon >= ulx) & (temp_array.lon <= lrx)
-    mask_lat = (temp_array.lat >= lry) & (temp_array.lat <= uly)
-    clipped = temp_array.where(mask_lon & mask_lat, drop=True)
-    clipped.to_netcdf(path='./nldas/NLDAS_FORA0125_H.A'+yr+mo+dy+'.'+hr+'00.020.nc',mode='w')
-
-    # Delete the big file
-    os.remove('./NLDAS_FORA0125_H.A'+yr+mo+dy+'.'+hr+'00.020.nc')
-
-    # Jump back up to top of loop to do next hour
+    # Jump back up to top of main loop to do next hour
     startdate = startdate + timedelta(hours=1)
