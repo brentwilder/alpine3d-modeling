@@ -6,7 +6,6 @@
 import os
 
 import xarray as xr
-import wget
 from datetime import datetime, timedelta
 
 # Input data location and login information
