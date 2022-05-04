@@ -28,7 +28,6 @@ for file in os.listdir('./prism_nc'):
 
         # Convert date back to a string to select timestamp
         thedate = thedate.strftime('%Y-%m-%d')
-        #thedate = '1981-10-31'
         nldas_bias_map = monthly_nldas['Tair'].sel(time=thedate)
 
         # Subtract the two grids and save as correction (converting to Kelvin)
