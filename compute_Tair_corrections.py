@@ -40,6 +40,7 @@ for file in os.listdir('./prism_nc'):
         # Close all datasets
         prism.close()
         nldas_bias_map.close()
-        
+
 # Close all datasets
 monthly_nldas.close()
+ds.close()
