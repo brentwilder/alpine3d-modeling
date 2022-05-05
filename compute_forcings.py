@@ -5,20 +5,133 @@
 # Import libraries
 from datetime import datetime, timedelta
 import xarray as xr
+import metpy.calc as mpcalc
+
 import os
+import shutil
 
-# loop through time index in nldas_4km file
-# for each file, make a check to see which month it is in,
-# then apply correction to that hour and output to TA folder
+# Set start and end date
+# NOTE: important to use the same dates used previously
+startdate = datetime(1981, 10, 1, 0)
+enddate = datetime(2021, 10, 1, 0)
 
-#   Then, use MetPy to :
-#       Calc VW vector from U10 and V10 wind data (later to be ran through WindNinja)
-#       return VW to folder
+# Call in merged+aligned nldas .nc file
+ds = xr.open_dataset('./nldas_merged/nldas_4km.nc')
 
-#   MetPy Calc RH from Air T, Pressure, and SH
-#       return RH
+##############
+# COMPUTE TA #
+##############
 
-# Output all other variables: PSUM, ISWR, ILWR
+# loop through time to output all corrected hourly TA
+while startdate < enddate:
 
+    # Select TA based on timestring
+    timestring = startdate.strftime('%Y-%m-%d %H:%M:%S') # best guess for now
+    varTA = ds['Tair'].sel(time=timestring)
+
+    # Load in the corresponding monthly correction file
+    yr = str(startdate.year)
+
+    # There's probably a better way to do this....
+    mo = startdate.month
+    if mo <= 9:
+        mo = '0'+ str(startdate.month)
+    else:
+        mo = str(startdate.month)
+    dy = startdate.day
+    if dy <= 9:
+        dy = '0'+ str(startdate.day)
+    else:
+        dy = str(startdate.day)
+    hr = startdate.hour
+    if hr <= 9:
+        hr = '0'+ str(startdate.hour)
+    else:
+        hr = str(startdate.hour)
+
+    corrTa = xr.open_dataset('./nldas_correction/'+yr+mo+'_correction.nc')
+
+    # Apply correction to air temperature across grid
+    varTA['TA'] = varTA['Tair'] + corrTa['correction']
+
+    # Save the netcdfs to a tempfolder
+    varTA['TA'].to_netcdf(path='./tmp/TA_'+yr+mo+dy+hr+'00.nc', mode='w')
+
+    # Jump back up to top of main loop to do next hour
+    startdate = startdate + timedelta(hours=1)
+
+# Close datasets
+varTA.close()
+ds.close()
+corrTa.close()
+
+# Merge all of the netcdfs into one stacked netcdf
+ds = xr.open_mfdataset('./tmp/*.nc',combine = 'by_coords', concat_dim='time')
+ds.to_netcdf('./computed_forcings/TA/a3d_TA.nc')
+ds.close()
+
+# Delete files in tmp folder
+shutil.rmtree('./tmp') 
+os.mkdir('./tmp')
+##############
+
+
+
+##############
+# COMPUTE VW #
+##############
+
+# Then, use MetPy to calc wind vector 
+# (To be improved by Wind Ninja later on)
+# Call in merged+aligned nldas .nc file
+ds = xr.open_dataset('./nldas_merged/nldas_4km.nc')
+
+# MetPy Calc RH from Pressure, Corrected AirT, and SH
+vw = mpcalc.wind_speed(ds['Wind_E'], ds['Wind_N'])
+vw['Direction'] = mpcalc.wind_direction(ds['Wind_E'], ds['Wind_N'])
+vw.to_netcdf('./computed_forcings/VW/a3d_VW.nc')
+
+# Close dataset
+ds.close()
+##############
+
+
+
+##############
+# COMPUTE RH #
+##############
+
+# Call in merged+aligned nldas .nc file
+ds = xr.open_dataset('./nldas_merged/nldas_4km.nc')
+ta = xr.open_dataset('./computed_forcings/TA/a3d_TA.nc')
+
+# MetPy Calc RH from Pressure, Corrected AirT, and SH
+rh = mpcalc.relative_humidity_from_specific_humidity(ds['PSurf'], ta['Tair'], ds['Qair'])
+rh.to_netcdf('./computed_forcings/RH/a3d_RH.nc')
+
+# Close datasets
+rh.close()
+ta.close()
+ds.close()
+##############
+
+
+
+###########################
+# OUTPUT PSUM, ISWR, ILWR #
+###########################
+
+# Call in merged+aligned nldas .nc file
+ds = xr.open_dataset('./nldas_merged/nldas_4km.nc')
+
+psum = ds['Rainf']
+psum.to_netcdf('./computed_forcings/PSUM/a3d_PSUM.nc')
+
+iswr = ds['SWdown']
+iswr.to_netcdf('./computed_forcings/ISWR/a3d_ISWR.nc')
+
+ilwr = ds['LWdown']
+ilwr.to_netcdf('./computed_forcings/ILWR/a3d_ILWR.nc')
 
 # close all datasets
+ds.close()
