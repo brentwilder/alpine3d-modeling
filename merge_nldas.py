@@ -3,11 +3,11 @@
 # 05/04/2022
 
 # Import libraries
-import xarray
+import xarray as xr
 import os
 
 # Merge all of the netcdfs into one stacked netcdf
-ds = xarray.open_mfdataset('./nldas/NLDAS_FORA0125_H.*.nc',combine = 'by_coords', concat_dim='time')
+ds = xr.open_mfdataset('./nldas/NLDAS_FORA0125_H.*.nc',combine = 'by_coords', concat_dim='time')
 ds.to_netcdf('./nldas_merged/nldas.nc')
 
 # Match scale and extent of first prism dataset in the folder (4km)
