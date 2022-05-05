@@ -33,6 +33,9 @@ for file in os.listdir('./prism_nc'):
         # Subtract the two grids and save as correction (converting to Kelvin)
         nldas_bias_map['correction'] = (prism['tmean']+273.15) - nldas_bias_map['Tair']
 
+        # Save prism data just for reference later
+        nldas_bias_map['prism'] = prism['tmean'] + 273.15
+
         # Write this correction result to .nc in nldas_correction
         output = file[:-3] + '_correction.nc'
         nldas_bias_map.to_netcdf(path='./nldas_correction/'+output, mode='w')
