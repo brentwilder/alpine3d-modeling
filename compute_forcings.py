@@ -16,6 +16,10 @@ import shutil
 startdate = datetime(1981, 10, 1, 0)
 enddate = datetime(2021, 10, 1, 0)
 
+# Create a smaller bounds to get rid of no data (avoiding possible lapse function issues)
+# But still leaving enough area to pick up some of the lower elevations to improve the function
+lat_bnds, lon_bnds = [43.1004031922779163  , 44.8985620400704235], [-116.9075152150912800, -114.1032432490848834]
+
 # Call in merged+aligned nldas .nc file
 ds = xr.open_dataset('./nldas_merged/nldas_4km.nc')
 
@@ -68,6 +72,7 @@ corrTa.close()
 
 # Merge all of the netcdfs into one stacked netcdf
 ds = xr.open_mfdataset('./tmp/*.nc',combine = 'by_coords', concat_dim='time')
+ds = ds.sel(lat=slice(*lat_bnds), lon=slice(*lon_bnds))
 ds.to_netcdf('./computed_forcings/TA/a3d_TA.nc')
 ds.close()
 
@@ -130,6 +135,7 @@ ds.close()
 
 # Merge all of the netcdfs into one stacked netcdf
 ds = xr.open_mfdataset('./tmp/*.nc',combine = 'by_coords', concat_dim='time')
+ds = ds.sel(lat=slice(*lat_bnds), lon=slice(*lon_bnds))
 ds.to_netcdf('./computed_forcings/PSUM/a3d_PSUM.nc')
 ds.close()
 
@@ -153,6 +159,7 @@ ds = xr.open_dataset('./nldas_merged/nldas_4km.nc')
 # MetPy Calc RH from Pressure, Corrected AirT, and SH
 vw = mpcalc.wind_speed(ds['Wind_E'], ds['Wind_N'])
 vw['Direction'] = mpcalc.wind_direction(ds['Wind_E'], ds['Wind_N'])
+vw = vw.sel(lat=slice(*lat_bnds), lon=slice(*lon_bnds))
 vw.to_netcdf('./computed_forcings/VW/a3d_VW.nc')
 
 # Close dataset
@@ -171,6 +178,7 @@ ta = xr.open_dataset('./computed_forcings/TA/a3d_TA.nc')
 
 # MetPy Calc RH from Pressure, Corrected AirT, and SH
 rh = mpcalc.relative_humidity_from_specific_humidity(ds['PSurf'], ta['Tair'], ds['Qair'])
+rh = rh.sel(lat=slice(*lat_bnds), lon=slice(*lon_bnds))
 rh.to_netcdf('./computed_forcings/RH/a3d_RH.nc')
 
 # Close datasets
@@ -189,9 +197,11 @@ ds.close()
 ds = xr.open_dataset('./nldas_merged/nldas_4km.nc')
 
 iswr = ds['SWdown']
+iswr = iswr.sel(lat=slice(*lat_bnds), lon=slice(*lon_bnds))
 iswr.to_netcdf('./computed_forcings/ISWR/a3d_ISWR.nc')
 
 ilwr = ds['LWdown']
+ilwr = ilwr.sel(lat=slice(*lat_bnds), lon=slice(*lon_bnds))
 ilwr.to_netcdf('./computed_forcings/ILWR/a3d_ILWR.nc')
 
 # close all datasets
