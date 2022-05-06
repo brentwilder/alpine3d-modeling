@@ -28,13 +28,16 @@ for file in os.listdir('./prism_nc'):
 
         # Convert date back to a string to select timestamp
         thedate = thedate.strftime('%Y-%m-%d')
-        nldas_bias_map = monthly_nldas['Tair'].sel(time=thedate)
+        nldas_bias_map = monthly_nldas.sel(time=thedate)
 
         # Subtract the two grids and save as correction (converting to Kelvin)
         nldas_bias_map['correction'] = (prism['tmean']+273.15) - nldas_bias_map['Tair']
 
         # Save prism data just for reference later
         nldas_bias_map['prism'] = prism['tmean'] + 273.15
+
+        # Drop extra variables
+        nldas_bias_map = nldas_bias_map.drop(labels=['CAPE','CRainf_frac','LWdown','PotEvap','PSurf','Qair','SWdown','Rainf','Wind_E','Wind_N'])
 
         # Write this correction result to .nc in nldas_correction
         output = file[:-3] + '_correction.nc'
