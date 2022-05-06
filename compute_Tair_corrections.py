@@ -38,7 +38,7 @@ for file in os.listdir('./prism_nc'):
 
         # Write this correction result to .nc in nldas_correction
         output = file[:-3] + '_correction.nc'
-        nldas_bias_map.to_netcdf(path='./nldas_correction/'+output, mode='w')
+        nldas_bias_map.to_netcdf(path='./nldas_correction_prism/'+output, mode='w')
         
         # Close all datasets
         prism.close()
