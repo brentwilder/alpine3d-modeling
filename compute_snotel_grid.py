@@ -1,4 +1,4 @@
-=# Compute snotel grids for correcting NLDAS precip
+# Compute snotel grids for correcting NLDAS precip
 # Brent Wilder
 # 05/05/2022
 
