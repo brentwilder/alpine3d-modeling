@@ -12,6 +12,7 @@ import os
 # Call in merged+aligned nldas .nc file and create monthly variable
 ds = xr.open_dataset('./nldas_merged/nldas_4km.nc')
 monthly_nldas = ds.resample(time='M').mean()
+monthly_nldas_sum = ds.resample(time='M').sum()
 
 # Loop through all of prism .nc files
 for file in os.listdir('./prism_tair_nc'):
@@ -44,11 +45,14 @@ for file in os.listdir('./prism_tair_nc'):
         prism.close()
         prism = xr.open_dataset('./prism_precip_nc/'+filename)
 
+        # Have to load as side dataset because we sum precip instead of avg for tair
+        nldas_bias_precip = monthly_nldas_sum.sel(time=thedate)
+        
         # Get number of hours in this month for the conversion
         hours = monthrange(year, month)[1] * 24
 
         # Subtract the two grids and save as correction (hourly by averaging per month) [mm / hr]
-        nldas_bias_map['correction_precip'] = (prism['ppt'] - nldas_bias_map['Rainf']) / hours
+        nldas_bias_map['correction_precip'] = (prism['ppt'] - nldas_bias_precip['Rainf']) / hours
 
         # Save prism precip data just for reference later
         nldas_bias_map['prism_ppt'] = prism['ppt']
@@ -63,6 +67,7 @@ for file in os.listdir('./prism_tair_nc'):
         # Close all datasets
         prism.close()
         nldas_bias_map.close()
+        nldas_bias_precip.close()
 
 # Close all datasets
 monthly_nldas.close()
