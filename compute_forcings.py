@@ -53,7 +53,7 @@ while startdate < enddate:
     corrTa = xr.open_dataset('./nldas_correction_prism/'+yr+mo+'_correction.nc')
 
     # Apply correction to air temperature across grid
-    varTA['TA'] = varTA['Tair'] + corrTa['correction']
+    varTA['TA'] = varTA['Tair'] + corrTa['correction_tair']
 
     # Save the netcdfs to a tempfolder
     varTA['TA'].to_netcdf(path='./tmp/TA_'+yr+mo+dy+hr+'00.nc', mode='w')
@@ -115,7 +115,7 @@ while startdate < enddate:
     corrPSUM = xr.open_dataset('./nldas_correction_snotel/'+yr+mo+dy+'_correction.nc')
 
     # Apply correction to precip across grid
-    varPSUM['PSUM'] = varPSUM['Rainf'] + corrPSUM['correction_hour']
+    varPSUM['PSUM'] = varPSUM['Rainf'] + corrPSUM['correction_precip']
 
     # Save the netcdfs to a tempfolder
     varPSUM['PSUM'].to_netcdf(path='./tmp/PSUM_'+yr+mo+dy+hr+'00.nc', mode='w')
