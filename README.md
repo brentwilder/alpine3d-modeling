@@ -5,6 +5,5 @@
  1. `get_prism.ipynb` to download monthly air temp data
  1. `merge_nldas.py` to combine netcdf files and match extent/res of prism
  1. `compute_Tair_corrections.py` to calculate Tair corrections based on prism
- 1. `compute_snotel_grid.py` IDW for daily cleaned snotel precip
- 1. `compute_precip_corrections.py` to calc precip corrections based on snotel grids 
+ 1. `compute_precip_corrections.py` to calc precip corrections based on prism 
  1. `compute_forcings.py` to calc/correct forcing variables and format for alpine3d
