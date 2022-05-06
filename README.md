@@ -6,3 +6,4 @@
  1. `merge_nldas.py` to combine netcdf files and match extent/res of prism
  1. `compute_corrections.py` to calculate Tair/Precip corrections based on prism
  1. `compute_forcings.py` to calc/correct forcing variables and format for alpine3d
+ 1. `match_dem_grid.ipynb` expensive task of downscaling the grid to match dem
