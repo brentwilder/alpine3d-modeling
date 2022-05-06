@@ -3,49 +3,52 @@
 # 05/05/2022
 
 # Import libraries
-from datetime import datetime, timedelta
+from datetime import datetime
 import xarray as xr
 import os
 
-# TODO: UPDATE BELOW TO BE FOR DAILY AND FOR SNOTEL GRID
-
 # Call in merged+aligned nldas .nc file and create monthly variable
 ds = xr.open_dataset('./nldas_merged/nldas_4km.nc')
-monthly_nldas = ds.resample(time='M').mean()
+daily_nldas = ds.resample(time='D').sum()
 
-# Loop through all of prism .nc files
-for file in os.listdir('./prism_nc'):
+# Loop through all of snotel_Grids .nc files
+for file in os.listdir('./snotel_grids'):
     filename = os.fsdecode(file)
     if filename.endswith('.nc'):
-        
+
         # Within this loop, read in file
-        prism = xr.open_dataset('./prism_nc/'+filename)
+        snotel = xr.open_dataset('./snotel_grids/'+filename)
         
-        # Get the month string from the filename
-        # for some reason xarray resample tool
-        # will show the last day of the month as the output instead of first day
-        # ... to correct for this i simply use a time delta of one day
+        # Get the day string from the filename
         thedate = file[:-3]
-        thedate = (datetime.strptime(thedate,'%Y%m').date()) - timedelta(days=1)
+        thedate = datetime.strptime(thedate,'%Y%m%d').date()
 
         # Convert date back to a string to select timestamp
         thedate = thedate.strftime('%Y-%m-%d')
-        nldas_bias_map = monthly_nldas['Tair'].sel(time=thedate)
+        nldas_bias_map = daily_nldas.sel(time=thedate)
 
-        # Subtract the two grids and save as correction (converting to Kelvin)
-        nldas_bias_map['correction'] = (prism['tmean']+273.15) - nldas_bias_map['Tair']
+        # Subtract the two grids and save as correction (daily)
+        nldas_bias_map['correction_day'] = snotel['Band1'] - nldas_bias_map['Rainf']
 
-        # Save prism data just for reference later
-        nldas_bias_map['prism'] = prism['tmean'] + 273.15
+        # Subtract the two grids and save as correction (hourly by averaging) [mm / hr]
+        nldas_bias_map['correction_hour'] = (snotel['Band1'] - nldas_bias_map['Rainf']) / 24
+
+        # Save snotel data just for reference later
+        nldas_bias_map['snotel'] = snotel['Band1']
+
+        # Drop extra variables
+        nldas_bias_map = nldas_bias_map.drop(labels=['CAPE','CRainf_frac','LWdown','PotEvap','PSurf','Qair','SWdown','Tair','Wind_E','Wind_N'])
 
         # Write this correction result to .nc in nldas_correction
         output = file[:-3] + '_correction.nc'
-        nldas_bias_map.to_netcdf(path='./nldas_correction/'+output, mode='w')
+        nldas_bias_map.to_netcdf(path='./nldas_correction_snotel/'+output, mode='w')
         
         # Close all datasets
-        prism.close()
+        snotel.close()
         nldas_bias_map.close()
 
+        break
+
 # Close all datasets
-monthly_nldas.close()
+daily_nldas.close()
 ds.close()
