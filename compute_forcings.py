@@ -117,7 +117,7 @@ while startdate < enddate:
     else:
         hr = str(startdate.hour)
 
-    corrPSUM = xr.open_dataset('./nldas_correction_prisma/'+yr+mo+dy+'_correction.nc')
+    corrPSUM = xr.open_dataset('./nldas_correction_prism/'+yr+mo+dy+'_correction.nc')
 
     # Apply correction to precip across grid
     varPSUM['PSUM'] = varPSUM['Rainf'] + corrPSUM['correction_precip']
