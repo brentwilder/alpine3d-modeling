@@ -20,8 +20,8 @@ lrx = -114
 lry = 43
 
 # Set start and end date
-startdate = datetime(1980, 10, 1, 0)
-enddate = datetime(2020, 10, 1, 0)
+startdate = datetime(1981, 10, 1, 0)
+enddate = datetime(2021, 10, 1, 0)
 
 # Start while loop the runs while dates are within the range selected
 while startdate < enddate:
