@@ -71,4 +71,5 @@ for file in os.listdir('./prism_tair_nc'):
 
 # Close all datasets
 monthly_nldas.close()
+monthly_nldas_sum.close()
 ds.close()
