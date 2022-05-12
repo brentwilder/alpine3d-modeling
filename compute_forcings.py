@@ -163,6 +163,7 @@ vw = vw.sel(lat=slice(*lat_bnds), lon=slice(*lon_bnds))
 vw.to_netcdf('./computed_forcings/VW/a3d_VW.nc')
 
 # Close dataset
+vw.close()
 ds.close()
 ##############
 
