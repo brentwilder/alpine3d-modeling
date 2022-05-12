@@ -2,8 +2,8 @@
 
 ### current forcing data workflow :mountain_snow:
  1. [`get_nldas2.py`](get_nldas2.py) to download all the hourly data
- 1. [`validate_download.py`](validate_download.py) to check gaps in aquisition
- 1. newscript
+ 1. [`validate_download.py`](validate_download.py) to check for gaps in aquisition
+ 1. [`get_nldas2_leftover.py`](get_nldas2_leftover.py) to download all data that was previously missed
  1. [`get_prism.ipynb`](get_prism.ipynb) to download monthly Tair/Precip data
  1. [`merge_nldas.py`](merge_nldas.py) to combine netcdf files and match extent/res of prism
  1. [`compute_corrections.py`](compute_corrections.py) to calculate Tair/Precip corrections based on prism
