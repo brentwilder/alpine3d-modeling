@@ -2,6 +2,7 @@
 # This csv can then be fed to get_nldas2_leftover.py
 # to catch any missing files...
 # Can also check duplicates if for some reason you downloaded a multiple times
+# and finally, outputs list of files for merging
 # Brent Wilder
 # 05/15/22
 
@@ -14,9 +15,10 @@ import pandas as pd
 startdate = datetime(1981, 10, 1, 0)
 enddate = datetime(2021, 10, 1, 0)
 
-# Initate empty lists for verification and duplicates
+# Initate empty lists for verification, duplicates, and merging
 files=[]
 duplicates=[]
+merges=[]
 
 # loop through time 
 while startdate < enddate:
@@ -50,6 +52,9 @@ while startdate < enddate:
         if myfile_duplicate.is_file():
             duplicates.append([myfile_duplicate])
 
+    # Append merge list
+    merges.append(['./'+ str(myfile)])
+
     # Jump back up to top of main loop to do next hour
     startdate = startdate + timedelta(hours=1)
 
@@ -61,3 +66,7 @@ df.to_csv('./verify.csv')
 df = pd.DataFrame(columns=['file'])
 df = pd.DataFrame(duplicates,columns=['file'])
 df.to_csv('./duplicates.csv')
+
+df = pd.DataFrame(columns=['file'])
+df = pd.DataFrame(merges,columns=['file'])
+df.to_csv('./merge_list.csv')
