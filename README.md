@@ -25,7 +25,7 @@
  ├── dem                     # dem for model domain (0.001 degree) 
  ├── nldas                   # download location for loooong NLDAS aquisition
  ├── nldas_correction_prism  # correction factors found from prism
- ├── nldas_merged            # merging and aligning NLDAS to prism
+ ├── nldas_match             # Aligning NLDAS to prism
  ├── prism_precip_nc         # converted using gdal and saved here
  ├── prism_precip_tif        # downloaded from GEE notebook
  ├── prism_tair_nc           # converted using gdal and saved here
