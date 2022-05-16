@@ -6,7 +6,7 @@
  1. [`validate_download.py`](validate_download.py) to check for gaps in aquisition
  1. [`get_nldas2_leftover.py`](get_nldas2_leftover.py) to download all data that were previously missed..Run validate again to ensure no missing records
  1. [`get_prism.ipynb`](get_prism.ipynb) to download monthly Tair/Precip data
- 1. [`merge_nldas.py`](merge_nldas.py) to combine netcdf files and match extent/res of prism
+ 1. [`match_nldas.py`](match_nldas.py) to combine netcdf files and match extent/res of prism
  1. [`compute_corrections.py`](compute_corrections.py) to calculate Tair/Precip corrections based on prism
  1. [`compute_forcings.py`](compute_forcings.py) to calc/correct forcing variables and format for alpine3d
  1.  Run WindNinja to improve wind forcings https://weather.firelab.org/windninja/
