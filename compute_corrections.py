@@ -8,11 +8,7 @@ import xarray as xr
 from calendar import monthrange
 
 import os
-
-# Call in merged+aligned nldas .nc file and create monthly variable
-ds = xr.open_dataset('./nldas_merged/nldas_4km.nc')
-monthly_nldas = ds.resample(time='M').mean()
-monthly_nldas_sum = ds.resample(time='M').sum()
+import shutil
 
 # Loop through all of prism .nc files
 for file in os.listdir('./prism_tair_nc'):
@@ -28,8 +24,30 @@ for file in os.listdir('./prism_tair_nc'):
         # ... to correct for this i simply use a time delta of one day
         thedate = file[:-3]
         thedate = (datetime.strptime(thedate,'%Y%m').date()) - timedelta(days=1)
+        
+        # prep dates for prism
         month = thedate.month
         year = thedate.year
+
+        # Prep the dates for nldas...
+        yr = str(thedate.year)
+        mo = thedate.month
+        if mo <= 9:
+            mo = '0'+ str(thedate.month)
+        else:
+            mo = str(thedate.month)
+
+        # Temp merge of this specific month NLDAS for averaging
+        tmp_merge = xr.open_mfdataset('./nldas_match/NLDAS_'+yr+mo+'*.nc', combine='nested', concat_dim="time")
+        tmp_merge.to_netcdf('./tmp/tmp_merge.nc')
+        tmp_merge.close()
+
+        # Load this temp file in
+        ds = xr.open_dataset('./tmp/tmp_merge.nc')
+
+        # Calculate the monthly means from NLDAS
+        monthly_nldas = ds.resample(time='M').mean()
+        monthly_nldas_sum = ds.resample(time='M').sum()
 
         # Convert date back to a string to select timestamp
         thedate = thedate.strftime('%Y-%m-%d')
@@ -68,8 +86,10 @@ for file in os.listdir('./prism_tair_nc'):
         prism.close()
         nldas_bias_map.close()
         nldas_bias_precip.close()
+        monthly_nldas.close()
+        monthly_nldas_sum.close()
+        ds.close()
 
-# Close all datasets
-monthly_nldas.close()
-monthly_nldas_sum.close()
-ds.close()
+        # Reset the tmp directory
+        shutil.rmtree('./tmp') 
+        os.mkdir('./tmp')
