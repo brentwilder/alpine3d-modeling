@@ -93,3 +93,6 @@ for file in os.listdir('./prism_tair_nc'):
         # Reset the tmp directory
         shutil.rmtree('./tmp') 
         os.mkdir('./tmp')
+
+        # Info output
+        print('[INFO] Wrapping up correction file for ',yr,'-',mo)
