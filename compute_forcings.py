@@ -59,17 +59,18 @@ while startdate < enddate:
     ds = ds.sel(lat=slice(*lat_bnds), lon=slice(*lon_bnds))
 
     # Output the forcings individually
-    ds['TA'].to_netcdf(path='./computed_forcings/TA/TA_'+yr+mo+dy+hr+'00.nc', mode='w')
-    ds['PSUM'].to_netcdf(path='./computed_forcings/PSUM/PSUM_'+yr+mo+dy+hr+'00.nc', mode='w')
-    ds['RH'].to_netcdf(path='./computed_forcings/RH/RH_'+yr+mo+dy+hr+'00.nc', mode='w')
-    ds['LWdown'].to_netcdf(path='./computed_forcings/ILWR/ILWR_'+yr+mo+dy+hr+'00.nc', mode='w')
-    ds['SWdown'].to_netcdf(path='./computed_forcings/ISWR/ISWR_'+yr+mo+dy+hr+'00.nc', mode='w')   
+    # Since this is a lot of data (TBs), this is being saved directly to an external hard drive
+    ds['TA'].to_netcdf(path='/media/brent/SEAGATE/A3D/computed_forcings/TA/TA_'+yr+mo+dy+hr+'00.nc', mode='w')
+    ds['PSUM'].to_netcdf(path='/media/brent/SEAGATE/A3D/computed_forcings/PSUM/PSUM_'+yr+mo+dy+hr+'00.nc', mode='w')
+    ds['RH'].to_netcdf(path='/media/brent/SEAGATE/A3D/computed_forcings/RH/RH_'+yr+mo+dy+hr+'00.nc', mode='w')
+    ds['LWdown'].to_netcdf(path='/media/brent/SEAGATE/A3D/computed_forcings/ILWR/ILWR_'+yr+mo+dy+hr+'00.nc', mode='w')
+    ds['SWdown'].to_netcdf(path='/media/brent/SEAGATE/A3D/computed_forcings/ISWR/ISWR_'+yr+mo+dy+hr+'00.nc', mode='w')   
     
     # Finally, remove everything except the wind vector (direction and speed)
     ds = ds.drop(labels=['CAPE','CRainf_frac','LWdown','PotEvap',
                          'PSurf','Qair','SWdown','Wind_E','Wind_N',
                          'Tair','TA','PSUM','RH','Rainf'])
-    ds.to_netcdf(path='./computed_forcings/VW/VW_'+yr+mo+dy+hr+'00.nc', mode='w')
+    ds.to_netcdf(path='/media/brent/SEAGATE/A3D/computed_forcings/VW/VW_'+yr+mo+dy+hr+'00.nc', mode='w')
 
     # Jump back up to top of main loop to do next hour
     startdate = startdate + timedelta(hours=1)
@@ -77,3 +78,6 @@ while startdate < enddate:
     # Close datasets
     ds.close()
     corr.close()
+
+    # Info output
+    print('[INFO] Wrapping up forcings for ',yr,'-',mo,'-',dy,' ',hr)
