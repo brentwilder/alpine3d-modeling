@@ -77,7 +77,7 @@ while startdate < enddate:
     # Finally, remove everything except the wind vector (direction and speed)
     ds = ds.drop(labels=['CAPE','CRainf_frac','LWdown','PotEvap',
                          'PSurf','Qair','SWdown','Wind_E','Wind_N',
-                         'Tair','TA','PSUM','RH','Rainf'])
+                         'Tair','TA','PSUM','RH','Rainf','TAtmp','PSUMtmp'])
     ds.to_netcdf(path='/media/brent/SEAGATE/A3D/computed_forcings/VW/VW_'+yr+mo+dy+hr+'00.nc', mode='w')
 
     # Jump back up to top of main loop to do next hour
