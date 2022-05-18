@@ -65,9 +65,6 @@ for file in os.listdir('./prism_tair_nc'):
 
         # Get number of hours in this month for the conversion
         hours = monthrange(year, month)[1] * 24
-        
-        # Subtract the two grids and save as correction (hourly by averaging per month) [mm / hr]
-        delta_ppt = (prism_ppt - nldas_bias_precip['Rainf']) / hours
 
         # compute the difference for precip
         os.system('cdo sub ./tmp/prism_ppt.nc ./tmp/rain.nc ./tmp/precip_tmp.nc')
