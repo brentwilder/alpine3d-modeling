@@ -38,4 +38,4 @@
 ````
 
 ### required libraries :floppy_disk:
-pandas, xarray, metpy, gdal, ee, geemap, ncremap
+pandas, xarray, metpy, gdal, ee, geemap, ncremap, cdo
