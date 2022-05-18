@@ -3,7 +3,7 @@
 # 05/06/2022
 
 # Import libraries
-from datetime import datetime, timedelta
+from datetime import datetime
 import xarray as xr
 from calendar import monthrange
 
@@ -18,18 +18,13 @@ for file in os.listdir('./prism_tair_nc'):
         # Within this loop, read in file
         prism = xr.open_dataset('./prism_tair_nc/'+filename)
         
-        # Get the month string from the filename
-        # for some reason xarray resample tool
-        # will show the last day of the month as the output instead of first day
-        # ... to correct for this i simply use a time delta of one day
+        # Get the month/year string from the filename
         thedate = file[:-3]
-        thedate = (datetime.strptime(thedate,'%Y%m').date()) - timedelta(days=1)
-        
-        # prep dates for prism
-        month = thedate.month
+        thedate = datetime.strptime(thedate,'%Y%m').date()
         year = thedate.year
-
-        # Prep the dates for nldas...
+        month = thedate.month
+    
+        # Prep the dates..
         yr = str(thedate.year)
         mo = thedate.month
         if mo <= 9:
@@ -37,58 +32,60 @@ for file in os.listdir('./prism_tair_nc'):
         else:
             mo = str(thedate.month)
 
-        # Temp merge of this specific month NLDAS for averaging
-        tmp_merge = xr.open_mfdataset('./nldas_match/NLDAS_'+yr+mo+'*.nc', combine='nested', concat_dim="time")
-        tmp_merge.to_netcdf('./tmp/tmp_merge.nc')
-        tmp_merge.close()
+        # Temp merge of this specific month NLDAS for averaging/sum
+        # "sudo apt install cdo"
+        os.system('cdo ensmean ./nldas_match/NLDAS_'+yr+mo+'*.nc ./tmp/mean.nc')
+        os.system('cdo enssum ./nldas_match/NLDAS_'+yr+mo+'*.nc ./tmp/sum.nc')
+        # Info output
+        print('[INFO] Merge complete ',yr,'-',mo)
 
-        # Load this temp file in
-        ds = xr.open_dataset('./tmp/tmp_merge.nc')
+        # Load the tmp files from cdo
+        nldas_bias_map = xr.open_dataset('./tmp/mean.nc')
+        nldas_bias_precip = xr.open_dataset('./tmp/sum.nc')
 
-        # Calculate the monthly means from NLDAS
-        monthly_nldas = ds.resample(time='M').mean()
-        monthly_nldas_sum = ds.resample(time='M').sum()
+        # Get just the AVG tair and SUM precip as nc files
+        nldas_air = nldas_bias_map['Tair']
+        nldas_air.to_netcdf(path='./tmp/tair.nc', mode='w')
+        nldas_rain = nldas_bias_precip['Rainf']
+        nldas_rain.to_netcdf(path='./tmp/rain.nc', mode='w')
 
-        # Convert date back to a string to select timestamp
-        thedate = thedate.strftime('%Y-%m-%d')
-        nldas_bias_map = monthly_nldas.sel(time=thedate)
-
-        # Subtract the two grids and save as correction (converting to Kelvin)
-        nldas_bias_map['correction_tair'] = (prism['tmean']+273.15) - nldas_bias_map['Tair']
-
-        # Save prism tair data just for reference later
-        nldas_bias_map['prism_tair'] = prism['tmean'] + 273.15
-
-        # since the filename is same (and also monthly), can take care of precip correction here
+        # save tmp files for prism too
+        prism_TA = prism['Band1'] + 273.15
+        prism_TA.to_netcdf(path='./tmp/prism_tmean.nc', mode='w')
         prism.close()
+        prism_TA.close()
         prism = xr.open_dataset('./prism_precip_nc/'+filename)
+        prism_ppt = prism['Band1']
+        prism_ppt.to_netcdf(path='./tmp/prism_ppt.nc', mode='w')
+        prism.close()
+        prism_ppt.close()
 
-        # Have to load as side dataset because we sum precip instead of avg for tair
-        nldas_bias_precip = monthly_nldas_sum.sel(time=thedate)
-        
+        # compute the difference for tair
+        os.system('cdo sub ./tmp/prism_tmean.nc ./tmp/tair.nc ./nldas_correction_tair/correction_'+yr+mo+'.nc')
+
         # Get number of hours in this month for the conversion
         hours = monthrange(year, month)[1] * 24
-
-        # Subtract the two grids and save as correction (hourly by averaging per month) [mm / hr]
-        nldas_bias_map['correction_precip'] = (prism['ppt'] - nldas_bias_precip['Rainf']) / hours
-
-        # Save prism precip data just for reference later
-        nldas_bias_map['prism_ppt'] = prism['ppt']
-
-        # Drop extra variables
-        nldas_bias_map = nldas_bias_map.drop(labels=['CAPE','CRainf_frac','LWdown','PotEvap','PSurf','Qair','SWdown','Wind_E','Wind_N'])
-
-        # Write this correction result to .nc in nldas_correction
-        output = file[:-3] + '_correction.nc'
-        nldas_bias_map.to_netcdf(path='./nldas_correction_prism/'+output, mode='w')
         
+        # Subtract the two grids and save as correction (hourly by averaging per month) [mm / hr]
+        delta_ppt = (prism_ppt - nldas_bias_precip['Rainf']) / hours
+
+        # compute the difference for precip
+        os.system('cdo sub ./tmp/prism_ppt.nc ./tmp/rain.nc ./tmp/precip_tmp.nc')
+
+        # Load in the differenced precip netcdf
+        ds_precip = xr.open_dataset('./tmp/precip_tmp.nc')
+
+        # adjust the precip correction factor back to hourly
+        delta_ppt = ds_precip / hours
+
+        # save the precip correction file
+        delta_ppt.to_netcdf(path='./nldas_correction_precip/correction_'+yr+mo+'.nc', mode='w')
+
         # Close all datasets
-        prism.close()
+        ds_precip.close()
+        delta_ppt.close()
         nldas_bias_map.close()
         nldas_bias_precip.close()
-        monthly_nldas.close()
-        monthly_nldas_sum.close()
-        ds.close()
 
         # Reset the tmp directory
         shutil.rmtree('./tmp') 
