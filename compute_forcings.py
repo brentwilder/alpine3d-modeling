@@ -39,14 +39,22 @@ while startdate < enddate:
     # Select NLDAS based on timestring
     ds = xr.open_dataset('./nldas_match/NLDAS_'+yr+mo+dy+hr+'00.nc')
 
-    # Load in the prism correction file
-    corr = xr.open_dataset('./nldas_correction_prism/'+yr+mo+'_correction.nc')
+    # Load in the prism correction files
+    corrTA = xr.open_dataset('./nldas_correction_tair/correction_'+yr+mo+'.nc')
+    corrPPT = xr.open_dataset('./nldas_correction_precip/correction_'+yr+mo+'.nc')
 
     # Apply correction to air temperature across grid
-    ds['TA'] = ds['Tair'] + corr['correction_tair']
+    ds['TAtmp'] = ds['Tair'] + corrTA['Band1']
+    ds['TA'] = ds.TAtmp.assign_attrs(units='K')
 
     # Apply correction to precip across grid
-    ds['PSUM'] = ds['Rainf'] + corr['correction_precip']
+    ds['PSUMtmp'] = ds['Rainf'] + corrPPT['Band1']
+    # If correction drops to below zero, set to zero...
+    # This can happen for dry periods... this makes sense to set these
+    # values to zero as we can not have negative precip!
+    ds['PSUMtmp'] = ds['PSUMtmp'].where(ds['PSUMtmp']>0,0)
+    # Reassign units
+    ds['PSUM'] = ds.PSUMtmp.assign_attrs(units='mm/hr')
 
     # Calc Wind forcings
     ds['WindSpeed'] = mpcalc.wind_speed(ds['Wind_E'], ds['Wind_N'])
@@ -77,7 +85,8 @@ while startdate < enddate:
 
     # Close datasets
     ds.close()
-    corr.close()
+    corrTA.close()
+    corrPPT.close()
 
     # Info output
     print('[INFO] Wrapping up forcings for ',yr,'-',mo,'-',dy,' ',hr)
