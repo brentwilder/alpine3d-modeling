@@ -49,7 +49,7 @@ while startdate < enddate:
 
     # Apply correction to precip across grid
     ds['PSUMtmp'] = ds['Rainf'] + corrPPT['Band1']
-    # If correction drops to below zero, set to zero...
+    # If corrected precip drops to below zero, set to zero...
     # This can happen for dry periods... this makes sense to set these
     # values to zero as we can not have negative precip!
     ds['PSUMtmp'] = ds['PSUMtmp'].where(ds['PSUMtmp']>0,0)
@@ -68,17 +68,17 @@ while startdate < enddate:
 
     # Output the forcings individually
     # Since this is a lot of data (TBs), this is being saved directly to an external hard drive
-    ds['TA'].to_netcdf(path='/media/brent/SEAGATE/A3D/computed_forcings/TA/TA_'+yr+mo+dy+hr+'00.nc', mode='w')
-    ds['PSUM'].to_netcdf(path='/media/brent/SEAGATE/A3D/computed_forcings/PSUM/PSUM_'+yr+mo+dy+hr+'00.nc', mode='w')
-    ds['RH'].to_netcdf(path='/media/brent/SEAGATE/A3D/computed_forcings/RH/RH_'+yr+mo+dy+hr+'00.nc', mode='w')
-    ds['LWdown'].to_netcdf(path='/media/brent/SEAGATE/A3D/computed_forcings/ILWR/ILWR_'+yr+mo+dy+hr+'00.nc', mode='w')
-    ds['SWdown'].to_netcdf(path='/media/brent/SEAGATE/A3D/computed_forcings/ISWR/ISWR_'+yr+mo+dy+hr+'00.nc', mode='w')   
+    ds['TA'].to_netcdf(path='./computed_forcings/TA/TA_'+yr+mo+dy+hr+'00.nc', mode='w')
+    ds['PSUM'].to_netcdf(path='./computed_forcings/PSUM/PSUM_'+yr+mo+dy+hr+'00.nc', mode='w')
+    ds['RH'].to_netcdf(path='./computed_forcings/RH/RH_'+yr+mo+dy+hr+'00.nc', mode='w')
+    ds['LWdown'].to_netcdf(path='./computed_forcings/ILWR/ILWR_'+yr+mo+dy+hr+'00.nc', mode='w')
+    ds['SWdown'].to_netcdf(path='./computed_forcings/ISWR/ISWR_'+yr+mo+dy+hr+'00.nc', mode='w')   
     
     # Finally, remove everything except the wind vector (direction and speed)
     ds = ds.drop(labels=['CAPE','CRainf_frac','LWdown','PotEvap',
                          'PSurf','Qair','SWdown','Wind_E','Wind_N',
                          'Tair','TA','PSUM','RH','Rainf','TAtmp','PSUMtmp'])
-    ds.to_netcdf(path='/media/brent/SEAGATE/A3D/computed_forcings/VW/VW_'+yr+mo+dy+hr+'00.nc', mode='w')
+    ds.to_netcdf(path='./computed_forcings/VW/VW_'+yr+mo+dy+hr+'00.nc', mode='w')
 
     # Jump back up to top of main loop to do next hour
     startdate = startdate + timedelta(hours=1)
