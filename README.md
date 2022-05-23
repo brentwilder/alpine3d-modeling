@@ -14,7 +14,7 @@
 
 ### directories used :file_folder:
 ```
- SEAGATE 4TB Hard Drive
+ 
  ├── computed_forcings       # final forcings for alpine3d
  │   ├── ILWR                # longwave radiation
  │   ├── ISWR                # shortwave radiation
@@ -23,8 +23,6 @@
  │   ├── TA                  # air temp
  │   ├── VW                  # wind vector
  │   └── VW_ninja            # wind vector after running through wind ninja
- 
- local working directory
  ├── dem                     # dem for model domain (0.001 degree) 
  ├── nldas                   # download location for loooong NLDAS aquisition
  ├── nldas_correction_prism  # correction factors found from prism
