@@ -9,7 +9,6 @@
  1. [`match_nldas.py`](match_nldas.py) to match extent/res of prism
  1. [`compute_corrections.py`](compute_corrections.py) to calculate Tair/Precip corrections based on prism
  1. [`compute_forcings.py`](compute_forcings.py) to calc/correct forcing variables and format for alpine3d
- 1.  Run WindNinja to improve wind forcings https://weather.firelab.org/windninja/
  1.  Begin alpine3d
 
 ### directories used :file_folder:
@@ -22,7 +21,6 @@
  │   ├── RH                  # relative humidty
  │   ├── TA                  # air temp
  │   ├── VW                  # wind vector
- │   └── VW_ninja            # wind vector after running through wind ninja
  ├── dem                     # dem for model domain (0.001 degree) 
  ├── nldas                   # download location for loooong NLDAS aquisition
  ├── nldas_correction_prism  # correction factors found from prism
