@@ -15,13 +15,6 @@
 ```
  
  ├── computed_forcings       # final forcings for alpine3d
- │   ├── ILWR                # longwave radiation
- │   ├── ISWR                # shortwave radiation
- │   ├── PSUM                # precip
- │   ├── RH                  # relative humidty
- │   ├── TA                  # air temp
- │   ├── VW                  # wind vector
- ├── dem                     # dem for model domain (0.001 degree) 
  ├── nldas                   # download location for loooong NLDAS aquisition
  ├── nldas_correction_prism  # correction factors found from prism
  ├── nldas_match             # Aligning NLDAS to prism
@@ -34,4 +27,4 @@
 ````
 
 ### required libraries :floppy_disk:
-pandas, xarray, metpy, gdal, ee, geemap, ncremap, cdo
+pandas, xarray, rasterio, rioxarray, metpy, gdal, ee, geemap, ncremap, cdo
