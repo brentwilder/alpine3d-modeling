@@ -75,7 +75,6 @@ while startdate < enddate:
     ds  = ds.set_coords(['time_bnds', 'lat_bnds', 'lon_bnds'])
     ds = ds.rio.write_crs('epsg:4326', inplace=True)
     ds = ds.rio.reproject(ds.rio.estimate_utm_crs())
-    print(ds)
 
    # Finally, remove everything except the wind vector (direction and speed)
     ds = ds.drop(labels=['CAPE','CRainf_frac','PotEvap',
