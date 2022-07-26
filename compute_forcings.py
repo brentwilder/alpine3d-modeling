@@ -76,7 +76,7 @@ while startdate < enddate:
     ds = ds.rio.write_crs('epsg:4326', inplace=True)
     ds = ds.rio.reproject(ds.rio.estimate_utm_crs())
 
-   # Finally, remove extra columns 
+    # Finally, remove extra columns 
     ds = ds.drop(labels=['CAPE','CRainf_frac','PotEvap',
                          'PSurf','Qair','Wind_E','Wind_N',
                          'Tair','Rainf','TAtmp','PSUMtmp'])
