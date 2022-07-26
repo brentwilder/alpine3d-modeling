@@ -3,8 +3,13 @@
 # 05/04/2022
 
 # Import libraries
+import os
+
+import shutil
 from datetime import datetime, timedelta
 import xarray as xr
+import rasterio
+import rioxarray as rio
 import metpy.calc as mpcalc
 
 # Set start and end date
@@ -37,7 +42,7 @@ while startdate < enddate:
         hr = str(startdate.hour)
 
     # Select NLDAS based on timestring
-    ds = xr.open_dataset('./nldas_match/NLDAS_'+yr+mo+dy+hr+'00.nc')
+    ds = xr.open_dataset('./nldas_match/NLDAS_'+yr+mo+dy+hr+'00.nc',decode_coords='all') 
 
     # Load in the prism correction files
     corrTA = xr.open_dataset('./nldas_correction_tair/correction_'+yr+mo+'.nc')
@@ -66,19 +71,19 @@ while startdate < enddate:
     # Clip to smaller area
     ds = ds.sel(lat=slice(*lat_bnds), lon=slice(*lon_bnds))
 
-    # Output the forcings individually
-    # Since this is a lot of data (TBs), this is being saved directly to an external hard drive
-    ds['TA'].to_netcdf(path='./computed_forcings/TA/TA_'+yr+mo+dy+hr+'00.nc', mode='w')
-    ds['PSUM'].to_netcdf(path='./computed_forcings/PSUM/PSUM_'+yr+mo+dy+hr+'00.nc', mode='w')
-    ds['RH'].to_netcdf(path='./computed_forcings/RH/RH_'+yr+mo+dy+hr+'00.nc', mode='w')
-    ds['LWdown'].to_netcdf(path='./computed_forcings/ILWR/ILWR_'+yr+mo+dy+hr+'00.nc', mode='w')
-    ds['SWdown'].to_netcdf(path='./computed_forcings/ISWR/ISWR_'+yr+mo+dy+hr+'00.nc', mode='w')   
-    
-    # Finally, remove everything except the wind vector (direction and speed)
-    ds = ds.drop(labels=['CAPE','CRainf_frac','LWdown','PotEvap',
-                         'PSurf','Qair','SWdown','Wind_E','Wind_N',
-                         'Tair','TA','PSUM','RH','Rainf','TAtmp','PSUMtmp'])
-    ds.to_netcdf(path='./computed_forcings/VW/VW_'+yr+mo+dy+hr+'00.nc', mode='w')
+    # Reproject to UTM 11N
+    ds  = ds.set_coords(['time_bnds', 'lat_bnds', 'lon_bnds'])
+    ds = ds.rio.write_crs('epsg:4326', inplace=True)
+    ds = ds.rio.reproject(ds.rio.estimate_utm_crs())
+    print(ds)
+
+   # Finally, remove everything except the wind vector (direction and speed)
+    ds = ds.drop(labels=['CAPE','CRainf_frac','PotEvap',
+                         'PSurf','Qair','Wind_E','Wind_N',
+                         'Tair','Rainf','TAtmp','PSUMtmp'])
+
+    # Save output forcings
+    ds.to_netcdf('./computed_forcings/A3D_'+yr+mo+dy+hr+'00.nc', mode='w')
 
     # Jump back up to top of main loop to do next hour
     startdate = startdate + timedelta(hours=1)
