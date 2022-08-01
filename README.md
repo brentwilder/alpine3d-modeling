@@ -1,4 +1,4 @@
-# nldas download
+# nldas2 download
 #### This code was largely based off of Patrick Broxton's MATLAB code for [SnowPALM](https://github.com/broxtopd/SnowPALM)
 
 ### current forcing data workflow :mountain_snow:
@@ -8,13 +8,12 @@
  1. [`get_prism.ipynb`](get_prism.ipynb) to download monthly Tair/Precip data
  1. [`match_nldas.py`](match_nldas.py) to match extent/res of prism
  1. [`compute_corrections.py`](compute_corrections.py) to calculate Tair/Precip corrections based on prism
- 1. [`compute_forcings.py`](compute_forcings.py) to calc/correct forcing variables and format for alpine3d
- 1.  Begin alpine3d
+ 1. [`compute_forcings.py`](compute_forcings.py) to calc/correct forcing variables
 
 ### directories used :file_folder:
 ```
  
- ├── computed_forcings       # final forcings for alpine3d
+ ├── computed_forcings       # final forcings 
  ├── nldas                   # download location for loooong NLDAS aquisition
  ├── nldas_correction_prism  # correction factors found from prism
  ├── nldas_match             # Aligning NLDAS to prism
