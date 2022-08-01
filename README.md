@@ -1,4 +1,4 @@
-# alpine3d-modeling
+# nldas download
 #### This code was largely based off of Patrick Broxton's MATLAB code for [SnowPALM](https://github.com/broxtopd/SnowPALM)
 
 ### current forcing data workflow :mountain_snow:
